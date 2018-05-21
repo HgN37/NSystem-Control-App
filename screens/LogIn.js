@@ -6,9 +6,13 @@ import {
   View,
   TextInput,
   DeviceEventEmitter,
-  Button
+  Button,
+  ActivityIndicator,
+  NativeAppEventEmitter
 } from 'react-native';
 import Sockets from 'react-native-sockets';
+
+var frame = {"USER":"","PASS":"","FUNC":"SIGNIN","DATA":""}
 
 export default class LogIn extends Component {
     static navigationOptions = {
@@ -18,18 +22,12 @@ export default class LogIn extends Component {
         connection:"Disconnected",
         info:"Version 1.0.1",
         id:"admin",
-        password:"admin"
+        password:"admin",
+        msg: "",
+        animating:true
       }
     constructor() {
       super()
-      config={
-        address: "cretatech.com", //ip address of server
-        port: 55555, //port of socket server
-        reconnect:true, //OPTIONAL (default false): auto-reconnect on lost server
-        reconnectDelay:500, //OPTIONAL (default 500ms): how often to try to auto-reconnect
-        maxReconnectAttempts:10, //OPTIONAL (default infinity): how many time to attemp to auto-reconnect
-      }
-      Sockets.startClient(config);
       //on connected
       DeviceEventEmitter.addListener('socketClient_connected', () => {
         this.setState({connection:"Connected"})
@@ -40,7 +38,17 @@ export default class LogIn extends Component {
       });
       //on new message
       DeviceEventEmitter.addListener('socketClient_data', (payload) => {
-        alert(payload.data);
+        this.setState({msg:payload.data.replace(/'/g,'"')})
+        let cmd = JSON.parse(this.state.msg)
+        if(cmd["FUNC"] == "SIGNIN") {
+          if(cmd["DATA"] == "OK") {
+            this.props.navigation.navigate('Home')
+          }
+          else {
+            Sockets.disconnect()
+            alert("Wrong username or password")
+          }
+        }
       });
       //on client closed
       DeviceEventEmitter.addListener('socketClient_closed', (data) => {
@@ -48,14 +56,23 @@ export default class LogIn extends Component {
       });
     }
     buttonLogIn = () => {
-      //alert("Log in")
-      if (this.state.connection == "Connected") {
-        Sockets.write('{"USER":"admin","PASS":"admin","FUNC":"SIGNIN","DATA":""}');
+      config={
+        address: "cretatech.com", //ip address of server
+        port: 55555, //port of socket server
+        reconnect:true, //OPTIONAL (default false): auto-reconnect on lost server
+        reconnectDelay:500, //OPTIONAL (default 500ms): how often to try to auto-reconnect
+        maxReconnectAttempts:10, //OPTIONAL (default infinity): how many time to attemp to auto-reconnect
       }
-      else {
-        //alert("No Internet Connection")
-      }
-      this.props.navigation.navigate('Home')
+      Sockets.startClient(config);
+      setTimeout(() => {
+        if (this.state.connection == "Connected") {
+          frame["USER"] = this.state.id
+          frame["PASS"] = this.state.password
+          frame["FUNC"] = "SIGNIN"
+          frame["DATA"] = "None"
+          Sockets.write(JSON.stringify(frame));
+        }
+      }, 200)
     }
     render() {
       return (
@@ -65,9 +82,6 @@ export default class LogIn extends Component {
           </Text>
           <Text style={styles.instructions}>
             {this.state.info}
-          </Text>
-          <Text style={styles.instructions}>
-            Status: {this.state.connection}
           </Text>
           <TextInput
             style={styles.textbox}
@@ -111,6 +125,7 @@ const styles = StyleSheet.create({
       height: 40,
       width: 200,
       borderColor: "gray",
-      borderWidth: 1
+      borderWidth: 1,
+      marginBottom: 5
     }
   });

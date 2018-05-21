@@ -6,37 +6,72 @@ import {
   View,
   TextInput,
   DeviceEventEmitter,
-  Button
+  Button,
+  ListView,
+  NativeAppEventEmitter
 } from 'react-native';
-import BleManager from 'react-native-ble-manager';
+import Sockets from 'react-native-sockets';
 
+var frame = {"USER":"","PASS":"","FUNC":"SIGNIN","DATA":""}
 
 export default class Home extends Component {
   static navigationOptions = {
     title: 'Home',
   };
-  state = {
-    status : "Waiting"
-  }
   constructor() {
     super()
+    this.state = {
+      connection : "Connected",
+      id: "admin",
+      password:"admin",
+      msg:"None",
+      sys: "None"
+    };
+    DeviceEventEmitter.addListener('socketClient_data', (payload) => {
+      this.setState({msg:payload.data.replace(/'/g,'"')})
+      let cmd = JSON.parse(this.state.msg)
+      if(cmd["FUNC"] == "LISTSYS"){
+        this.setState({sys:this.state.msg})
+      }
+    });
   }
-  buttonBluetooth = () => {
-    this.setState({status:"Scanning"})
-    BleManager.start({showAlert:false}).then(() => {
-      alert("Start bluetooth")
-    })
-    BleManager.scan([], 5, true)
+  componentWillMount() {
+    config={
+      address: "cretatech.com", //ip address of server
+      port: 55555, //port of socket server
+      reconnect:true, //OPTIONAL (default false): auto-reconnect on lost server
+      reconnectDelay:500, //OPTIONAL (default 500ms): how often to try to auto-reconnect
+      maxReconnectAttempts:10, //OPTIONAL (default infinity): how many time to attemp to auto-reconnect
+    }
+    Sockets.startClient(config);
+    setTimeout(() => {
+      if (this.state.connection == "Connected") {
+        frame["USER"] = this.state.id
+        frame["PASS"] = this.state.password
+        frame["FUNC"] = "SIGNIN"
+        frame["DATA"] = "None"
+        Sockets.write(JSON.stringify(frame));
+      }
+      setTimeout(()=>{
+        frame["USER"] = this.state.id
+        frame["PASS"] = this.state.password
+        frame["FUNC"] = "LISTSYS"
+        frame["DATA"] = "None"
+        Sockets.write(JSON.stringify(frame));
+      }, 10)
+    }, 200)
+  }
+  buttonAddSystem = () => {
+    
   }
   render() {
     return (
         <View style={styles.container}>
-            <Text style={styles.welcome}>{this.state.status}</Text>
+            <Text style={styles.welcome}>{this.state.sys}</Text>
             <Button
-              onPress={this.buttonBluetooth}
-              title="Scan bluetooth"
+              onPress={this.buttonAddSystem}
+              title="Add new system"
               color="#841584"
-              accessibilityLabel="Learn more about this purple button"
               />
         </View>
     )
@@ -46,7 +81,7 @@ export default class Home extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       alignItems: 'center',
       backgroundColor: '#F5FCFF',
     },
