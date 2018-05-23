@@ -8,7 +8,8 @@ import {
   DeviceEventEmitter,
   Button,
   ListView,
-  NativeAppEventEmitter
+  NativeAppEventEmitter,
+  TouchableOpacity
 } from 'react-native';
 import Sockets from 'react-native-sockets';
 
@@ -17,63 +18,130 @@ var frame = {"USER":"","PASS":"","FUNC":"SIGNIN","DATA":""}
 export default class Home extends Component {
   static navigationOptions = {
     title: 'Home',
+    headerLeft: null
   };
-  constructor() {
+  constructor(props) {
     super()
     this.state = {
       connection : "Connected",
-      id: "admin",
-      password:"admin",
+      user: "",
+      password:"",
       msg:"None",
-      sys: "None"
+      sys: "None",
+      list_name:["None","None","None","None","None"],
+      list_id:["None","None","None","None","None"],
+      list_stt:["None","None","None","None","None"]
     };
     DeviceEventEmitter.addListener('socketClient_data', (payload) => {
       this.setState({msg:payload.data.replace(/'/g,'"')})
-      let cmd = JSON.parse(this.state.msg)
+      let cmd
+      try {
+        cmd = JSON.parse(this.state.msg)
+      }
+      catch(err) {
+        alert(this.state.msg)
+        while(1);
+      }
       if(cmd["FUNC"] == "LISTSYS"){
         this.setState({sys:this.state.msg})
+        len = cmd["DATA"].length
+        var loop = 0
+        var temp_name = this.state.list_name.slice()
+        for(loop = 0; loop < 5; loop++) {
+          temp_name[loop] = "None"
+        }
+        for(loop = 0; loop < len; loop++) {
+          temp_name[loop] = cmd["DATA"][loop]["NAME"]
+        }
+        this.setState({list_name:temp_name})
+
+        var temp_id = this.state.list_id.slice()
+        for(loop = 0; loop < 5; loop++) {
+          temp_id[loop] = "None"
+        }
+        for(loop = 0; loop < len; loop++) {
+          temp_id[loop] = cmd["DATA"][loop]["ID"]
+        }
+        this.setState({list_id:temp_id})
+
+        var temp_stt = this.state.list_stt.slice()
+        for(loop = 0; loop < 5; loop++) {
+          temp_stt[loop] = "None"
+        }
+        for(loop = 0; loop < len; loop++) {
+          temp_stt[loop] = cmd["DATA"][loop]["STATUS"]
+        }
+        this.setState({list_stt:temp_stt})
+      }
+      if(cmd["FUNC"] == "READ") {
+        //alert(this.state.msg)
       }
     });
+    this.sysPress = this.sysPress.bind(this);
   }
   componentWillMount() {
-    config={
-      address: "cretatech.com", //ip address of server
-      port: 55555, //port of socket server
-      reconnect:true, //OPTIONAL (default false): auto-reconnect on lost server
-      reconnectDelay:500, //OPTIONAL (default 500ms): how often to try to auto-reconnect
-      maxReconnectAttempts:10, //OPTIONAL (default infinity): how many time to attemp to auto-reconnect
-    }
-    Sockets.startClient(config);
+    this.setState({user:this.props.navigation.getParam('user','admin')})
+    this.setState({password:this.props.navigation.getParam('password','admin')})
+  }
+  componentDidMount() {
     setTimeout(() => {
       if (this.state.connection == "Connected") {
-        frame["USER"] = this.state.id
-        frame["PASS"] = this.state.password
-        frame["FUNC"] = "SIGNIN"
-        frame["DATA"] = "None"
-        Sockets.write(JSON.stringify(frame));
-      }
-      setTimeout(()=>{
-        frame["USER"] = this.state.id
+        frame["USER"] = this.state.user
         frame["PASS"] = this.state.password
         frame["FUNC"] = "LISTSYS"
         frame["DATA"] = "None"
         Sockets.write(JSON.stringify(frame));
-      }, 10)
+      }
     }, 200)
   }
-  buttonAddSystem = () => {
-    
+  sysPress = (sysNum) => {
+    frame["USER"] = this.state.user
+    frame["PASS"] = this.state.password
+    frame["FUNC"] = "READ"
+    frame["DATA"] = this.state.list_name[sysNum]
+    Sockets.write(JSON.stringify(frame));
+    this.props.navigation.navigate('Sys', {
+      user: this.state.user,
+      password: this.state.password,
+      connection: this.state.connection,
+      sys_name: this.state.list_name[sysNum]
+    })
   }
   render() {
     return (
-        <View style={styles.container}>
-            <Text style={styles.welcome}>{this.state.sys}</Text>
-            <Button
-              onPress={this.buttonAddSystem}
-              title="Add new system"
-              color="#841584"
-              />
-        </View>
+      <View style={styles.container}>
+        
+        <TouchableOpacity
+          onPress={() => this.sysPress(0)}
+          style={styles.sysbox}
+          >
+          <Text> Name: {this.state.list_name[0]} {"\n"} ID: {this.state.list_id[0]} {"\n"} Status: {this.state.list_stt[0]}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.sysPress(1)}
+          style={styles.sysbox}
+          >
+          <Text> Name: {this.state.list_name[1]} {"\n"} ID: {this.state.list_id[1]} {"\n"} Status: {this.state.list_stt[1]}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.sysPress(2)}
+          style={styles.sysbox}
+          >
+          <Text> Name: {this.state.list_name[2]} {"\n"} ID: {this.state.list_id[2]} {"\n"} Status: {this.state.list_stt[2]}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.sysPress(3)}
+          style={styles.sysbox}
+          >
+          <Text> Name: {this.state.list_name[3]} {"\n"} ID: {this.state.list_id[3]} {"\n"} Status: {this.state.list_stt[3]}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.sysPress(4)}
+          style={styles.sysbox}
+          >
+          <Text> Name: {this.state.list_name[4]} {"\n"} ID: {this.state.list_id[4]} {"\n"} Status: {this.state.list_stt[4]}</Text>
+        </TouchableOpacity>
+      </View>
     )
   }
 }
@@ -84,6 +152,7 @@ const styles = StyleSheet.create({
       justifyContent: 'flex-start',
       alignItems: 'center',
       backgroundColor: '#F5FCFF',
+      padding:20
     },
     welcome: {
       fontSize: 20,
@@ -100,5 +169,18 @@ const styles = StyleSheet.create({
       width: 200,
       borderColor: "gray",
       borderWidth: 1
+    },
+    sysbox: {
+      flexDirection:'row',
+      justifyContent:'flex-start',
+      alignItems:'flex-start',
+      margin:10,
+      borderColor: "gray",
+      borderWidth: 1,
+      width: 300,
+      padding:10
+    },
+    logout: {
+      marginRight:5
     }
 });

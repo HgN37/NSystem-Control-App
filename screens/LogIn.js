@@ -21,7 +21,7 @@ export default class LogIn extends Component {
     state = {
         connection:"Disconnected",
         info:"Version 1.0.1",
-        id:"admin",
+        user:"admin",
         password:"admin",
         msg: "",
         animating:true
@@ -31,6 +31,7 @@ export default class LogIn extends Component {
       //on connected
       DeviceEventEmitter.addListener('socketClient_connected', () => {
         this.setState({connection:"Connected"})
+        console.log("connected")
       });
       //on error
       DeviceEventEmitter.addListener('socketClient_error', (data) => {
@@ -42,7 +43,11 @@ export default class LogIn extends Component {
         let cmd = JSON.parse(this.state.msg)
         if(cmd["FUNC"] == "SIGNIN") {
           if(cmd["DATA"] == "OK") {
-            this.props.navigation.navigate('Home')
+            this.props.navigation.navigate('Home', {
+              user: this.state.user,
+              password: this.state.password,
+              connection: this.state.connection
+            })
           }
           else {
             Sockets.disconnect()
@@ -66,7 +71,7 @@ export default class LogIn extends Component {
       Sockets.startClient(config);
       setTimeout(() => {
         if (this.state.connection == "Connected") {
-          frame["USER"] = this.state.id
+          frame["USER"] = this.state.user
           frame["PASS"] = this.state.password
           frame["FUNC"] = "SIGNIN"
           frame["DATA"] = "None"
@@ -81,12 +86,12 @@ export default class LogIn extends Component {
             Welcome to N-System!
           </Text>
           <Text style={styles.instructions}>
-            {this.state.info}
+            {this.state.connection}
           </Text>
           <TextInput
             style={styles.textbox}
-            onChangeText={(text) => this.setState({id:text})}
-            value={this.state.id}
+            onChangeText={(text) => this.setState({user:text})}
+            value={this.state.user}
             />
           <TextInput
             style={styles.textbox}
@@ -96,7 +101,7 @@ export default class LogIn extends Component {
           <Button
             onPress={this.buttonLogIn}
             title="Log in"
-            color="#841584"
+            color="#0040ff"
             accessibilityLabel="Learn more about this purple button"
             />
         </View>

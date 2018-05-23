@@ -13,10 +13,24 @@ export default class Sys extends Component {
   static navigationOptions = {
     title: 'System',
   };
+  constructor() {
+    super()
+    this.state = {
+      connection:"Connected",
+      user:"",
+      password:"",
+      sys_name:"",
+    }
+  }
+  componentWillMount() {
+    this.setState({user:this.props.navigation.getParam('user','admin')})
+    this.setState({password:this.props.navigation.getParam('password','admin')})
+    this.setState({sys_name:this.props.navigation.getParam('sys_name','None')})
+  }
   render() {
       return (
           <View style={styles.container}>
-              <Text style={styles.welcome}>This is Sys</Text>
+              <Text style={styles.welcome}>This is Sys {this.state.sys_name}</Text>
           </View>
       )
   }
