@@ -95,11 +95,6 @@ export default class Home extends Component {
     }, 200)
   }
   sysPress = (sysNum) => {
-    frame["USER"] = this.state.user
-    frame["PASS"] = this.state.password
-    frame["FUNC"] = "READ"
-    frame["DATA"] = this.state.list_name[sysNum]
-    Sockets.write(JSON.stringify(frame));
     this.props.navigation.navigate('Sys', {
       user: this.state.user,
       password: this.state.password,
