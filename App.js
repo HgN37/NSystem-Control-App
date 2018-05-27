@@ -4,12 +4,16 @@ import { createStackNavigator } from 'react-navigation';
 import Home from './screens/Home'
 import LogIn from './screens/LogIn'
 import Sys from './screens/Sys'
+import Rule from './screens/Rule'
+import AddSys from './screens/AddSys'
 
 const RootStack = createStackNavigator(
   {
     LogIn: LogIn,
     Home: Home,
-    Sys: Sys
+    Sys: Sys,
+    Rule: Rule,
+    AddSys: AddSys
   },
   {
     initialRouteName: 'LogIn',

@@ -9,7 +9,8 @@ import {
   Button,
   ListView,
   NativeAppEventEmitter,
-  TouchableOpacity
+  TouchableOpacity,
+  BackHandler
 } from 'react-native';
 import Sockets from 'react-native-sockets';
 
@@ -23,7 +24,7 @@ export default class Home extends Component {
   constructor(props) {
     super()
     this.state = {
-      connection : "Connected",
+      connection : "Disconnected",
       user: "",
       password:"",
       msg:"None",
@@ -82,9 +83,10 @@ export default class Home extends Component {
   componentWillMount() {
     this.setState({user:this.props.navigation.getParam('user','admin')})
     this.setState({password:this.props.navigation.getParam('password','admin')})
+    this.setState({connection:this.props.navigation.getParam('connection','Disconnected')})
   }
   componentDidMount() {
-    setTimeout(() => {
+    setInterval(() => {
       if (this.state.connection == "Connected") {
         frame["USER"] = this.state.user
         frame["PASS"] = this.state.password
@@ -92,15 +94,26 @@ export default class Home extends Component {
         frame["DATA"] = "None"
         Sockets.write(JSON.stringify(frame));
       }
-    }, 200)
+    }, 1000)
   }
   sysPress = (sysNum) => {
-    this.props.navigation.navigate('Sys', {
-      user: this.state.user,
-      password: this.state.password,
-      connection: this.state.connection,
-      sys_name: this.state.list_name[sysNum]
-    })
+    if(this.state.list_id[sysNum] != "None") {
+      this.props.navigation.navigate('Sys', {
+        user: this.state.user,
+        password: this.state.password,
+        connection: this.state.connection,
+        sys_name: this.state.list_name[sysNum],
+        sys_id:this.state.list_id[sysNum]
+      })
+    }
+    else {
+      this.props.navigation.navigate('AddSys', {
+        user: this.state.user,
+        password: this.state.password,
+        connection: this.state.connection,
+        sys_name: "None"
+      })
+    }
   }
   render() {
     return (

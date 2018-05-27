@@ -8,7 +8,8 @@ import {
   DeviceEventEmitter,
   Button,
   ActivityIndicator,
-  NativeAppEventEmitter
+  NativeAppEventEmitter,
+  BackHandler
 } from 'react-native';
 import Sockets from 'react-native-sockets';
 
@@ -18,26 +19,34 @@ export default class LogIn extends Component {
     static navigationOptions = {
       title: 'Log in',
     };
-    state = {
+    constructor() {
+      super()
+      this.state = {
         connection:"Disconnected",
         info:"Version 1.0.1",
         user:"admin",
         password:"admin",
         msg: "",
-        animating:true
+        animating:false
       }
-    constructor() {
-      super()
-      //on connected
+    }
+    componentDidMount() {
+      config={
+        address: "cretatech.com", //ip address of server
+        port: 55555, //port of socket server
+        reconnect:true, //OPTIONAL (default false): auto-reconnect on lost server
+        reconnectDelay:500, //OPTIONAL (default 500ms): how often to try to auto-reconnect
+        maxReconnectAttempts:10, //OPTIONAL (default infinity): how many time to attemp to auto-reconnect
+      }
+      Sockets.startClient(config);
+      /* Check connection */
       DeviceEventEmitter.addListener('socketClient_connected', () => {
         this.setState({connection:"Connected"})
-        console.log("connected")
-      });
-      //on error
-      DeviceEventEmitter.addListener('socketClient_error', (data) => {
-        console.log('socketClient_error',data.error);
-      });
-      //on new message
+      })
+      DeviceEventEmitter.addListener('socketClient_error', () => {
+        this.setState({connection:"Disconnected"})
+      })
+      /* Listen to message */
       DeviceEventEmitter.addListener('socketClient_data', (payload) => {
         this.setState({msg:payload.data.replace(/'/g,'"')})
         let cmd = JSON.parse(this.state.msg)
@@ -55,38 +64,34 @@ export default class LogIn extends Component {
           }
         }
       });
-      //on client closed
-      DeviceEventEmitter.addListener('socketClient_closed', (data) => {
-        console.log('socketClient_closed',data.error);
-      });
+      setInterval(() => {
+        if(this.state.connection != "Connected") {
+          Sockets.startClient(config)
+        }
+      }, 1000)
     }
     buttonLogIn = () => {
-      config={
-        address: "cretatech.com", //ip address of server
-        port: 55555, //port of socket server
-        reconnect:true, //OPTIONAL (default false): auto-reconnect on lost server
-        reconnectDelay:500, //OPTIONAL (default 500ms): how often to try to auto-reconnect
-        maxReconnectAttempts:10, //OPTIONAL (default infinity): how many time to attemp to auto-reconnect
+      if (this.state.connection == "Connected") {
+        frame["USER"] = this.state.user
+        frame["PASS"] = this.state.password
+        frame["FUNC"] = "SIGNIN"
+        frame["DATA"] = "None"
+        Sockets.write(JSON.stringify(frame));
+        this.setState({animating:true})
       }
-      Sockets.startClient(config);
-      setTimeout(() => {
-        if (this.state.connection == "Connected") {
-          frame["USER"] = this.state.user
-          frame["PASS"] = this.state.password
-          frame["FUNC"] = "SIGNIN"
-          frame["DATA"] = "None"
-          Sockets.write(JSON.stringify(frame));
-        }
-      }, 200)
+      else {
+        alert("Please check your connection")
+      }
     }
     render() {
+      const animating = this.state.animating
       return (
         <View style={styles.container}>
           <Text style={styles.welcome}>
             Welcome to N-System!
           </Text>
           <Text style={styles.instructions}>
-            {this.state.connection}
+            {this.state.info}
           </Text>
           <TextInput
             style={styles.textbox}
@@ -104,6 +109,11 @@ export default class LogIn extends Component {
             color="#0040ff"
             accessibilityLabel="Learn more about this purple button"
             />
+          <ActivityIndicator
+               animating = {animating}
+               color = '#bc2b78'
+               size = "large"
+               />
         </View>
       );
     }
@@ -132,5 +142,11 @@ const styles = StyleSheet.create({
       borderColor: "gray",
       borderWidth: 1,
       marginBottom: 5
+    },
+    activityIndicator: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 80
     }
   });
