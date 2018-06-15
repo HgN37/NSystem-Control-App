@@ -20,13 +20,50 @@ export default class AddSys extends Component {
     };
     constructor() {
         super()
+        this.state = {
+          id:"000000008a8c7394",
+          name:"Test system",
+          user:"",
+          password:""
+        }
+        this.buttonAddSys = this.buttonAddSys.bind(this)
+    }
+    componentWillMount() {
+      this.setState({user:this.props.navigation.getParam('user','admin')})
+      this.setState({password:this.props.navigation.getParam('password','admin')})
     }
     componentDidMount() {
-
+      //alert(this.state.user)
+    }
+    buttonAddSys() {
+      frame["USER"] = this.state.user
+      frame["PASS"] = this.state.password
+      frame["FUNC"] = "ADDSYS"
+      var temp = {}
+      temp["ID"] = this.state.id
+      temp["NAME"] = this.state.name
+      frame["DATA"] = temp;
+      Sockets.write(JSON.stringify(frame))
+      this.props.navigation.goBack()
     }
     render() {
         return(
-            <View>
+            <View style={styles.container}>
+              <TextInput
+                style={styles.textbox}
+                onChangeText={(text) => this.setState({id:text})}
+                value={this.state.id}
+                />
+              <TextInput
+                style={styles.textbox}
+                onChangeText={(text) => this.setState({name:text})}
+                value={this.state.name}
+                />
+              <Button
+                onPress={this.buttonAddSys}
+                title="Add system"
+                color="#0040ff"
+                />
             </View>
         )
     }

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {HeaderBackButton} from 'react-navigation'
 import {
   Platform,
   StyleSheet,
@@ -16,9 +17,15 @@ var frame = {"USER":"","PASS":"","FUNC":"SIGNIN","DATA":""}
 var mqtt_frame = {"ADDR":"000000008a8c7394", "FUNC":"WRITE","DEV1":"01","DEV2":"FF","DATA":{"1":"FF","2":"FF","3":"FF","4":"FF"}}
 
 export default class Sys extends Component {
-  static navigationOptions = {
+  static navigationOptions = ({navigation}) => ({
     title: 'System',
-  };
+    headerLeft:  <HeaderBackButton
+      onPress={() => {
+        DeviceEventEmitter.emit('StartListSys')
+        navigation.goBack()
+      }}
+    />
+  });
   constructor() {
     super()
     this.state = {
@@ -38,11 +45,11 @@ export default class Sys extends Component {
     this.setState({sys_id:this.props.navigation.getParam('sys_id','None')})
   }
   componentDidMount() {
-    this.sysInterval = setInterval( () =>{
+    this.sysInterval = setInterval( () => {
       frame["USER"] = this.state.user
       frame["PASS"] = this.state.password
       frame["FUNC"] = "READ"
-      frame["DATA"] = this.state.sys_name
+      frame["DATA"] = this.state.sys_id
       Sockets.write(JSON.stringify(frame));
     }, 1000)
     this.sysListener = DeviceEventEmitter.addListener('socketClient_data', (payload) => {
@@ -60,6 +67,7 @@ export default class Sys extends Component {
         let dev_list_t = this.state.dev_list.slice()
         let dev_format_temp = {"num":"None", "hardware":"None", "name":"None", "data":"None"}
         if(data["FILE"] == "DEVLIST") {
+          this.setState({dev_list:[]})
           //alert(JSON.stringify(data))
           let k
           for(k in data) {
@@ -69,18 +77,20 @@ export default class Sys extends Component {
             let exist = false
             for (j in dev_list_t) {
               if(dev_list_t[j]["num"] == data[k]["ID"].toString()) {
-                dev_list_t["hardware"] == data[k]["HARDWARE"].toString()
+                dev_list_t[j]["hardware"] == data[k]["HARDWARE"].toString()
+                dev_list_t[j]["data"] == data[k]["VALUE"].toString()
                 exist = true
               }
             }
             if(exist == false) {
               dev_format_temp["num"]=data[k]["ID"].toString()
               dev_format_temp["hardware"]=data[k]["HARDWARE"].toString()
+              dev_format_temp["data"]=data[k]["VALUE"].toString()
               dev_list_t.push(dev_format_temp)
             }
           }
           this.setState({dev_list:dev_list_t})
-        }
+        }/*
         if(data["FILE"] == "DEVDATA") {
           //alert(JSON.stringify(data))
           dev_list_t = this.state.dev_list.slice()
@@ -97,7 +107,7 @@ export default class Sys extends Component {
             }
           }
           this.setState({dev_list:dev_list_t})
-        }
+        }*/
       }
     })
   }
@@ -106,6 +116,7 @@ export default class Sys extends Component {
     this.sysListener.remove()
   }
   deviceControl(dev_id, dev_value) {
+    console.log('Pressed')
     mqtt_frame['ADDR'] = this.state.sys_id
     mqtt_frame['FUNC'] = "WRITE"
     mqtt_frame['DEV1'] = dev_id
@@ -128,6 +139,7 @@ export default class Sys extends Component {
       return (
           <View style={styles.container}>
             <Text style={styles.welcome}>System {JSON.stringify(this.state.sys_name)}</Text>
+            <Text>{JSON.stringify(this.state.dev_list)} </Text>
             <FlatList
               data={this.state.dev_list}
               renderItem={({item}) => (

@@ -86,17 +86,24 @@ export default class Home extends Component {
     this.setState({connection:this.props.navigation.getParam('connection','Disconnected')})
   }
   componentDidMount() {
-    setInterval(() => {
-      if (this.state.connection == "Connected") {
-        frame["USER"] = this.state.user
-        frame["PASS"] = this.state.password
-        frame["FUNC"] = "LISTSYS"
-        frame["DATA"] = "None"
-        Sockets.write(JSON.stringify(frame));
-      }
-    }, 1000)
+    DeviceEventEmitter.addListener('StartListSys', () => {
+      this.homeInterval = setInterval(() => {
+        if (this.state.connection == "Connected") {
+          frame["USER"] = this.state.user
+          frame["PASS"] = this.state.password
+          frame["FUNC"] = "LISTSYS"
+          frame["DATA"] = "None"
+          Sockets.write(JSON.stringify(frame));
+        }
+      }, 1000)
+    })
+    DeviceEventEmitter.emit('StartListSys')
+  }
+  componentWillUnmount() {
+    clearInterval(this.homeInterval)
   }
   sysPress = (sysNum) => {
+    clearInterval(this.homeInterval)
     if(this.state.list_id[sysNum] != "None") {
       this.props.navigation.navigate('Sys', {
         user: this.state.user,

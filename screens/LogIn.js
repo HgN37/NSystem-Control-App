@@ -109,11 +109,6 @@ export default class LogIn extends Component {
             color="#0040ff"
             accessibilityLabel="Learn more about this purple button"
             />
-          <ActivityIndicator
-               animating = {animating}
-               color = '#bc2b78'
-               size = "large"
-               />
         </View>
       );
     }
