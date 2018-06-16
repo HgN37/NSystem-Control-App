@@ -70544,7 +70544,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
           frame["USER"] = _this2.state.user;
           frame["PASS"] = _this2.state.password;
           frame["FUNC"] = "READ";
-          frame["DATA"] = _this2.state.sys_name;
+          frame["DATA"] = _this2.state.sys_id;
 
           _reactNativeSockets2.default.write(JSON.stringify(frame));
         }, 1000);
@@ -70576,6 +70576,10 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             };
 
             if (data["FILE"] == "DEVLIST") {
+              _this2.setState({
+                dev_list: []
+              });
+
               var k = void 0;
 
               for (k in data) {
@@ -70586,7 +70590,8 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
                 for (j in dev_list_t) {
                   if (dev_list_t[j]["num"] == data[k]["ID"].toString()) {
-                    dev_list_t["hardware"] == data[k]["HARDWARE"].toString();
+                    dev_list_t[j]["hardware"] == data[k]["HARDWARE"].toString();
+                    dev_list_t[j]["data"] == data[k]["VALUE"].toString();
                     exist = true;
                   }
                 }
@@ -70594,30 +70599,8 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 if (exist == false) {
                   dev_format_temp["num"] = data[k]["ID"].toString();
                   dev_format_temp["hardware"] = data[k]["HARDWARE"].toString();
+                  dev_format_temp["data"] = data[k]["VALUE"].toString();
                   dev_list_t.push(dev_format_temp);
-                }
-              }
-
-              _this2.setState({
-                dev_list: dev_list_t
-              });
-            }
-
-            if (data["FILE"] == "DEVDATA") {
-              dev_list_t = _this2.state.dev_list.slice();
-
-              var _k = void 0;
-
-              for (_k in data) {
-                if (_k == "FILE") continue;
-                if (_k == "RASPID") continue;
-
-                var _j = void 0;
-
-                for (_j in dev_list_t) {
-                  if (_k.toString() == dev_list_t[_j]["num"]) {
-                    dev_list_t[_j]["data"] = data[_k][data[_k].length - 1][1];
-                  }
                 }
               }
 
@@ -70660,7 +70643,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 137
+              lineNumber: 140
             }
           },
           _react2.default.createElement(
@@ -70669,11 +70652,22 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.welcome,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 138
+                lineNumber: 141
               }
             },
             "System ",
             JSON.stringify(this.state.sys_name)
+          ),
+          _react2.default.createElement(
+            _reactNative.Text,
+            {
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 142
+              }
+            },
+            JSON.stringify(this.state.dev_list),
+            " "
           ),
           _react2.default.createElement(_reactNative.FlatList, {
             data: this.state.dev_list,
@@ -70688,7 +70682,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.sysbox,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 142
+                    lineNumber: 146
                   }
                 },
                 _react2.default.createElement(
@@ -70696,7 +70690,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 145
+                      lineNumber: 149
                     }
                   },
                   "Hardware: ",
@@ -70712,7 +70706,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 139
+              lineNumber: 143
             }
           }),
           _react2.default.createElement(_reactNative.Button, {
@@ -70721,7 +70715,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             color: "#0040ff",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 150
+              lineNumber: 154
             }
           })
         );

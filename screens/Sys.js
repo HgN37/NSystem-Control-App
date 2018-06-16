@@ -34,7 +34,8 @@ export default class Sys extends Component {
       password:"",
       sys_name:"",
       sys_id:"",
-      dev_list:[]
+      dev_list:[],
+      count:0
     }
     this.deviceControl = this.deviceControl.bind(this)
   }
@@ -64,10 +65,10 @@ export default class Sys extends Component {
       }
       if(cmd["FUNC"] == "READ") {
         let data = cmd["DATA"]
+        this.setState({dev_list:[]})
         let dev_list_t = this.state.dev_list.slice()
         let dev_format_temp = {"num":"None", "hardware":"None", "name":"None", "data":"None"}
         if(data["FILE"] == "DEVLIST") {
-          this.setState({dev_list:[]})
           //alert(JSON.stringify(data))
           let k
           for(k in data) {
@@ -86,7 +87,8 @@ export default class Sys extends Component {
               dev_format_temp["num"]=data[k]["ID"].toString()
               dev_format_temp["hardware"]=data[k]["HARDWARE"].toString()
               dev_format_temp["data"]=data[k]["VALUE"].toString()
-              dev_list_t.push(dev_format_temp)
+              let clone = Object.assign({}, dev_format_temp)
+              dev_list_t.push(clone)
             }
           }
           this.setState({dev_list:dev_list_t})
@@ -116,7 +118,7 @@ export default class Sys extends Component {
     this.sysListener.remove()
   }
   deviceControl(dev_id, dev_value) {
-    console.log('Pressed')
+    //console.log('Pressed')
     mqtt_frame['ADDR'] = this.state.sys_id
     mqtt_frame['FUNC'] = "WRITE"
     mqtt_frame['DEV1'] = dev_id
@@ -132,28 +134,28 @@ export default class Sys extends Component {
       user: this.state.user,
       password: this.state.password,
       connection: this.state.connection,
-      sys_name: this.state.sys_name
+      sys_name: this.state.sys_name,
+      sys_id: this.state.sys_id
     })
   }
   render() {
       return (
           <View style={styles.container}>
             <Text style={styles.welcome}>System {JSON.stringify(this.state.sys_name)}</Text>
-            <Text>{JSON.stringify(this.state.dev_list)} </Text>
             <FlatList
               data={this.state.dev_list}
               renderItem={({item}) => (
                 <TouchableOpacity
                   onPress={()=>this.deviceControl(item.num,item.data)} 
                   style={styles.sysbox}>
-                <Text>Hardware: {item.hardware}{"\n"}Data: {(item.hardware == "1")? (item.data == "100")? "ON" : "OFF" : 0}</Text>
+                <Text>Hardware: {item.hardware}{"\n"}Data: {(item.hardware == "1")? (item.data == "100")? "ON" : "OFF" : item.data}</Text>
                 </TouchableOpacity>
               )}
               keyExtractor={(item, index) => index.toString()}
             />
             <Button
               onPress={this.buttonRule}
-              title="Set rule"
+              title="Rule"
               color="#0040ff"
             />
           </View>
