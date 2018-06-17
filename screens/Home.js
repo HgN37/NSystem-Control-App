@@ -87,6 +87,11 @@ export default class Home extends Component {
   }
   componentDidMount() {
     DeviceEventEmitter.addListener('StartListSys', () => {
+      frame["USER"] = this.state.user
+      frame["PASS"] = this.state.password
+      frame["FUNC"] = "LISTSYS"
+      frame["DATA"] = "None"
+      Sockets.write(JSON.stringify(frame));
       this.homeInterval = setInterval(() => {
         if (this.state.connection == "Connected") {
           frame["USER"] = this.state.user
@@ -95,7 +100,7 @@ export default class Home extends Component {
           frame["DATA"] = "None"
           Sockets.write(JSON.stringify(frame));
         }
-      }, 1000)
+      }, 5000)
     })
     DeviceEventEmitter.emit('StartListSys')
   }
@@ -105,13 +110,15 @@ export default class Home extends Component {
   sysPress = (sysNum) => {
     clearInterval(this.homeInterval)
     if(this.state.list_id[sysNum] != "None") {
-      this.props.navigation.navigate('Sys', {
-        user: this.state.user,
-        password: this.state.password,
-        connection: this.state.connection,
-        sys_name: this.state.list_name[sysNum],
-        sys_id:this.state.list_id[sysNum]
-      })
+      if(this.state.list_stt[sysNum] == 'online') {
+        this.props.navigation.navigate('Sys', {
+          user: this.state.user,
+          password: this.state.password,
+          connection: this.state.connection,
+          sys_name: this.state.list_name[sysNum],
+          sys_id:this.state.list_id[sysNum]
+        })
+      }
     }
     else {
       this.props.navigation.navigate('AddSys', {

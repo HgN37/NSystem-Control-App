@@ -27,7 +27,8 @@ export default class Rule extends Component {
           connection:"Connected",
           sys_name:"",
           sys_id:"",
-          rule_list:[]
+          rule_list:[],
+          dev_list:[]
         }
     }
     componentWillMount() {
@@ -35,16 +36,22 @@ export default class Rule extends Component {
       this.setState({password:this.props.navigation.getParam('password','admin')})
       this.setState({sys_name:this.props.navigation.getParam('sys_name','None')})
       this.setState({sys_id:this.props.navigation.getParam('sys_id','None')})
+      this.setState({dev_list:this.props.navigation.getParam('dev_list',[])})
     }
     componentDidMount() {
-      this.sysInterval = setInterval( () => {
+      frame["USER"] = this.state.user
+      frame["PASS"] = this.state.password
+      frame["FUNC"] = "RULE"
+      frame["DATA"] = this.state.sys_id
+      Sockets.write(JSON.stringify(frame));
+      this.ruleInterval = setInterval( () => {
         frame["USER"] = this.state.user
         frame["PASS"] = this.state.password
         frame["FUNC"] = "RULE"
         frame["DATA"] = this.state.sys_id
         Sockets.write(JSON.stringify(frame));
-      }, 1000)
-      this.sysListener = DeviceEventEmitter.addListener('socketClient_data', (payload) => {
+      }, 10000)
+      this.ruleListener = DeviceEventEmitter.addListener('socketClient_data', (payload) => {
         this.setState({msg:payload.data.replace(/'/g,'"')})
         let cmd
         try {
@@ -78,11 +85,14 @@ export default class Rule extends Component {
         }
       })
     }
+    componentWillUnmount() {
+      clearInterval(this.ruleInterval)
+      this.ruleListener.remove()
+    }
     render() {
         return(
             <View>
               <Text style={styles.welcome}>Rule {this.state.sys_name}</Text>
-              <Text>{JSON.stringify(this.state.rule_list)}</Text>
               <FlatList
               data={this.state.rule_list}
               renderItem={({item}) => (

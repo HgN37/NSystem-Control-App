@@ -46,13 +46,18 @@ export default class Sys extends Component {
     this.setState({sys_id:this.props.navigation.getParam('sys_id','None')})
   }
   componentDidMount() {
+    frame["USER"] = this.state.user
+    frame["PASS"] = this.state.password
+    frame["FUNC"] = "READ"
+    frame["DATA"] = this.state.sys_id
+    Sockets.write(JSON.stringify(frame));
     this.sysInterval = setInterval( () => {
       frame["USER"] = this.state.user
       frame["PASS"] = this.state.password
       frame["FUNC"] = "READ"
       frame["DATA"] = this.state.sys_id
       Sockets.write(JSON.stringify(frame));
-    }, 1000)
+    }, 5000)
     this.sysListener = DeviceEventEmitter.addListener('socketClient_data', (payload) => {
       this.setState({msg:payload.data.replace(/'/g,'"')})
       let cmd
@@ -87,6 +92,12 @@ export default class Sys extends Component {
               dev_format_temp["num"]=data[k]["ID"].toString()
               dev_format_temp["hardware"]=data[k]["HARDWARE"].toString()
               dev_format_temp["data"]=data[k]["VALUE"].toString()
+              if(dev_format_temp["hardware"] == "1") {
+                dev_format_temp["name"] = "RELAY " + dev_format_temp["num"]
+              }
+              else if(dev_format_temp["hardware"] == "5") {
+                dev_format_temp["name"] = "LIGHT " + dev_format_temp["num"]
+              }
               let clone = Object.assign({}, dev_format_temp)
               dev_list_t.push(clone)
             }
@@ -135,7 +146,8 @@ export default class Sys extends Component {
       password: this.state.password,
       connection: this.state.connection,
       sys_name: this.state.sys_name,
-      sys_id: this.state.sys_id
+      sys_id: this.state.sys_id,
+      dev_list: this.state.dev_list
     })
   }
   render() {
@@ -148,7 +160,7 @@ export default class Sys extends Component {
                 <TouchableOpacity
                   onPress={()=>this.deviceControl(item.num,item.data)} 
                   style={styles.sysbox}>
-                <Text>Hardware: {item.hardware}{"\n"}Data: {(item.hardware == "1")? (item.data == "100")? "ON" : "OFF" : item.data}</Text>
+                <Text>Addr: {item.num}{"\n"}Name: {item.name}{"\n"}Data: {(item.hardware == "1")? (item.data == "100")? "ON" : "OFF" : item.data}</Text>
                 </TouchableOpacity>
               )}
               keyExtractor={(item, index) => index.toString()}

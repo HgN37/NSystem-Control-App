@@ -69973,6 +69973,13 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         var _this2 = this;
 
         _reactNative.DeviceEventEmitter.addListener('StartListSys', function () {
+          frame["USER"] = _this2.state.user;
+          frame["PASS"] = _this2.state.password;
+          frame["FUNC"] = "LISTSYS";
+          frame["DATA"] = "None";
+
+          _reactNativeSockets2.default.write(JSON.stringify(frame));
+
           _this2.homeInterval = setInterval(function () {
             if (_this2.state.connection == "Connected") {
               frame["USER"] = _this2.state.user;
@@ -69982,7 +69989,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
               _reactNativeSockets2.default.write(JSON.stringify(frame));
             }
-          }, 1000);
+          }, 5000);
         });
 
         _reactNative.DeviceEventEmitter.emit('StartListSys');
@@ -70003,7 +70010,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 127
+              lineNumber: 132
             }
           },
           _react2.default.createElement(
@@ -70015,7 +70022,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 129
+                lineNumber: 134
               }
             },
             _react2.default.createElement(
@@ -70023,7 +70030,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 133
+                  lineNumber: 138
                 }
               },
               " Name: ",
@@ -70047,7 +70054,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 135
+                lineNumber: 140
               }
             },
             _react2.default.createElement(
@@ -70055,7 +70062,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 139
+                  lineNumber: 144
                 }
               },
               " Name: ",
@@ -70079,7 +70086,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 141
+                lineNumber: 146
               }
             },
             _react2.default.createElement(
@@ -70087,7 +70094,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 145
+                  lineNumber: 150
                 }
               },
               " Name: ",
@@ -70111,7 +70118,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 147
+                lineNumber: 152
               }
             },
             _react2.default.createElement(
@@ -70119,7 +70126,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 151
+                  lineNumber: 156
                 }
               },
               " Name: ",
@@ -70143,7 +70150,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 153
+                lineNumber: 158
               }
             },
             _react2.default.createElement(
@@ -70151,7 +70158,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 157
+                  lineNumber: 162
                 }
               },
               " Name: ",
@@ -70503,7 +70510,9 @@ __d(function (global, _require, module, exports, _dependencyMap) {
           user: _this.state.user,
           password: _this.state.password,
           connection: _this.state.connection,
-          sys_name: _this.state.sys_name
+          sys_name: _this.state.sys_name,
+          sys_id: _this.state.sys_id,
+          dev_list: _this.state.dev_list
         });
       };
 
@@ -70513,7 +70522,8 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         password: "",
         sys_name: "",
         sys_id: "",
-        dev_list: []
+        dev_list: [],
+        count: 0
       };
       _this.deviceControl = _this.deviceControl.bind(_this);
       return _this;
@@ -70540,6 +70550,13 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function componentDidMount() {
         var _this2 = this;
 
+        frame["USER"] = this.state.user;
+        frame["PASS"] = this.state.password;
+        frame["FUNC"] = "READ";
+        frame["DATA"] = this.state.sys_id;
+
+        _reactNativeSockets2.default.write(JSON.stringify(frame));
+
         this.sysInterval = setInterval(function () {
           frame["USER"] = _this2.state.user;
           frame["PASS"] = _this2.state.password;
@@ -70547,7 +70564,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
           frame["DATA"] = _this2.state.sys_id;
 
           _reactNativeSockets2.default.write(JSON.stringify(frame));
-        }, 1000);
+        }, 5000);
         this.sysListener = _reactNative.DeviceEventEmitter.addListener('socketClient_data', function (payload) {
           _this2.setState({
             msg: payload.data.replace(/'/g, '"')
@@ -70566,6 +70583,10 @@ __d(function (global, _require, module, exports, _dependencyMap) {
           if (cmd["FUNC"] == "READ") {
             var data = cmd["DATA"];
 
+            _this2.setState({
+              dev_list: []
+            });
+
             var dev_list_t = _this2.state.dev_list.slice();
 
             var dev_format_temp = {
@@ -70576,10 +70597,6 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             };
 
             if (data["FILE"] == "DEVLIST") {
-              _this2.setState({
-                dev_list: []
-              });
-
               var k = void 0;
 
               for (k in data) {
@@ -70600,7 +70617,8 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   dev_format_temp["num"] = data[k]["ID"].toString();
                   dev_format_temp["hardware"] = data[k]["HARDWARE"].toString();
                   dev_format_temp["data"] = data[k]["VALUE"].toString();
-                  dev_list_t.push(dev_format_temp);
+                  var clone = babelHelpers.extends({}, dev_format_temp);
+                  dev_list_t.push(clone);
                 }
               }
 
@@ -70620,7 +70638,6 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     }, {
       key: "deviceControl",
       value: function deviceControl(dev_id, dev_value) {
-        console.log('Pressed');
         mqtt_frame['ADDR'] = this.state.sys_id;
         mqtt_frame['FUNC'] = "WRITE";
         mqtt_frame['DEV1'] = dev_id;
@@ -70643,7 +70660,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 140
+              lineNumber: 149
             }
           },
           _react2.default.createElement(
@@ -70652,22 +70669,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.welcome,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 141
+                lineNumber: 150
               }
             },
             "System ",
             JSON.stringify(this.state.sys_name)
-          ),
-          _react2.default.createElement(
-            _reactNative.Text,
-            {
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 142
-              }
-            },
-            JSON.stringify(this.state.dev_list),
-            " "
           ),
           _react2.default.createElement(_reactNative.FlatList, {
             data: this.state.dev_list,
@@ -70682,7 +70688,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.sysbox,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 146
+                    lineNumber: 154
                   }
                 },
                 _react2.default.createElement(
@@ -70690,14 +70696,17 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 149
+                      lineNumber: 157
                     }
                   },
+                  "Addr: ",
+                  item.num,
+                  "\n",
                   "Hardware: ",
                   item.hardware,
                   "\n",
                   "Data: ",
-                  item.hardware == "1" ? item.data == "100" ? "ON" : "OFF" : 0
+                  item.hardware == "1" ? item.data == "100" ? "ON" : "OFF" : item.data
                 )
               );
             },
@@ -70706,16 +70715,16 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 143
+              lineNumber: 151
             }
           }),
           _react2.default.createElement(_reactNative.Button, {
             onPress: this.buttonRule,
-            title: "Set rule",
+            title: "Rule",
             color: "#0040ff",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 154
+              lineNumber: 162
             }
           })
         );
@@ -70801,27 +70810,190 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     "FUNC": "SIGNIN",
     "DATA": ""
   };
+  var mqtt_frame = {
+    "ADDR": "000000008a8c7394",
+    "FUNC": "WRITE",
+    "DEV1": "01",
+    "DEV2": "FF",
+    "DATA": {
+      "1": "FF",
+      "2": "FF",
+      "3": "FF",
+      "4": "FF"
+    }
+  };
 
   var Rule = function (_Component) {
     babelHelpers.inherits(Rule, _Component);
 
     function Rule() {
       babelHelpers.classCallCheck(this, Rule);
-      return babelHelpers.possibleConstructorReturn(this, (Rule.__proto__ || Object.getPrototypeOf(Rule)).call(this));
+
+      var _this = babelHelpers.possibleConstructorReturn(this, (Rule.__proto__ || Object.getPrototypeOf(Rule)).call(this));
+
+      _this.state = {
+        user: "",
+        password: "",
+        connection: "Connected",
+        sys_name: "",
+        sys_id: "",
+        rule_list: [],
+        dev_list: []
+      };
+      return _this;
     }
 
     babelHelpers.createClass(Rule, [{
+      key: "componentWillMount",
+      value: function componentWillMount() {
+        this.setState({
+          user: this.props.navigation.getParam('user', 'admin')
+        });
+        this.setState({
+          password: this.props.navigation.getParam('password', 'admin')
+        });
+        this.setState({
+          sys_name: this.props.navigation.getParam('sys_name', 'None')
+        });
+        this.setState({
+          sys_id: this.props.navigation.getParam('sys_id', 'None')
+        });
+        this.setState({
+          dev_list: this.props.navigation.getParam('dev_list', [])
+        });
+      }
+    }, {
       key: "componentDidMount",
-      value: function componentDidMount() {}
+      value: function componentDidMount() {
+        var _this2 = this;
+
+        this.sysInterval = setInterval(function () {
+          frame["USER"] = _this2.state.user;
+          frame["PASS"] = _this2.state.password;
+          frame["FUNC"] = "RULE";
+          frame["DATA"] = _this2.state.sys_id;
+
+          _reactNativeSockets2.default.write(JSON.stringify(frame));
+        }, 1000);
+        this.sysListener = _reactNative.DeviceEventEmitter.addListener('socketClient_data', function (payload) {
+          _this2.setState({
+            msg: payload.data.replace(/'/g, '"')
+          });
+
+          var cmd = void 0;
+
+          try {
+            cmd = JSON.parse(_this2.state.msg);
+          } catch (err) {
+            alert(_this2.state.msg);
+
+            while (1) {}
+          }
+
+          if (cmd["FUNC"] == "RULE") {
+            var data = cmd["DATA"];
+
+            _this2.setState({
+              rule_list: []
+            });
+
+            var rule_list_t = _this2.state.rule_list.slice();
+
+            if (data["FILE"] == "RULELIST") {
+              var k = void 0;
+              var rule_temp = {};
+
+              for (k in data) {
+                if (k == "FILE") continue;
+                if (k == "RASPID") continue;
+                rule_temp["id"] = data[k]["ID"];
+                rule_temp["dev1"] = data[k]["DEV1"];
+                rule_temp["dev2"] = data[k]["DEV2"];
+                rule_temp["value"] = data[k]["VALUE"];
+                rule_temp["under"] = data[k]["UNDER"];
+                rule_temp["over"] = data[k]["OVER"];
+                var clone = babelHelpers.extends({}, rule_temp);
+                rule_list_t.push(clone);
+              }
+
+              _this2.setState({
+                rule_list: rule_list_t
+              });
+            }
+          }
+        });
+      }
     }, {
       key: "render",
       value: function render() {
-        return _react2.default.createElement(_reactNative.View, {
-          __source: {
-            fileName: _jsxFileName,
-            lineNumber: 29
-          }
-        });
+        return _react2.default.createElement(
+          _reactNative.View,
+          {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 85
+            }
+          },
+          _react2.default.createElement(
+            _reactNative.Text,
+            {
+              style: styles.welcome,
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 86
+              }
+            },
+            "Rule ",
+            this.state.sys_name
+          ),
+          _react2.default.createElement(_reactNative.FlatList, {
+            data: this.state.rule_list,
+            renderItem: function renderItem(_ref) {
+              var item = _ref.item;
+              return _react2.default.createElement(
+                _reactNative.TouchableOpacity,
+                {
+                  onPress: function onPress() {},
+                  style: styles.sysbox,
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 90
+                  }
+                },
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  {
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 93
+                    }
+                  },
+                  "ID: ",
+                  item.id,
+                  "\n",
+                  "Dev1: ",
+                  item.dev1,
+                  "   Dev2: ",
+                  item.dev2,
+                  "  Data: ",
+                  item.value,
+                  "\n",
+                  "Under: ",
+                  item.under,
+                  " Over: ",
+                  item.over
+                )
+              );
+            },
+            keyExtractor: function keyExtractor(item, index) {
+              return index.toString();
+            },
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 87
+            }
+          })
+        );
       }
     }]);
     return Rule;
