@@ -32,7 +32,7 @@ export default class LogIn extends Component {
     }
     componentDidMount() {
       config={
-        address: "cretatech.com", //ip address of server
+        address: "cretag.kbvision.tv", //ip address of server
         port: 55555, //port of socket server
         reconnect:true, //OPTIONAL (default false): auto-reconnect on lost server
         reconnectDelay:500, //OPTIONAL (default 500ms): how often to try to auto-reconnect

@@ -6,6 +6,7 @@ import LogIn from './screens/LogIn'
 import Sys from './screens/Sys'
 import Rule from './screens/Rule'
 import AddSys from './screens/AddSys'
+import AddRule from './screens/AddRule'
 
 const RootStack = createStackNavigator(
   {
@@ -13,7 +14,8 @@ const RootStack = createStackNavigator(
     Home: Home,
     Sys: Sys,
     Rule: Rule,
-    AddSys: AddSys
+    AddSys: AddSys,
+    AddRule: AddRule
   },
   {
     initialRouteName: 'LogIn',

@@ -55606,12 +55606,17 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
   var _AddSys2 = babelHelpers.interopRequireDefault(_AddSys);
 
+  var _AddRule = _require(_dependencyMap[8], "./screens/AddRule");
+
+  var _AddRule2 = babelHelpers.interopRequireDefault(_AddRule);
+
   var RootStack = (0, _reactNavigation.createStackNavigator)({
     LogIn: _LogIn2.default,
     Home: _Home2.default,
     Sys: _Sys2.default,
     Rule: _Rule2.default,
-    AddSys: _AddSys2.default
+    AddSys: _AddSys2.default,
+    AddRule: _AddRule2.default
   }, {
     initialRouteName: 'LogIn'
   });
@@ -55630,7 +55635,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         return _react2.default.createElement(RootStack, {
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 25
+            lineNumber: 27
           }
         });
       }
@@ -55639,7 +55644,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
   }(_react.Component);
 
   exports.default = App;
-},337,[118,12,338,441,443,444,445,446],"App.js");
+},337,[118,12,338,441,443,444,445,446,447],"App.js");
 __d(function (global, _require, module, exports, _dependencyMap) {
   module.exports = {
     get createNavigationContainer() {
@@ -69853,13 +69858,15 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         clearInterval(_this.homeInterval);
 
         if (_this.state.list_id[sysNum] != "None") {
-          _this.props.navigation.navigate('Sys', {
-            user: _this.state.user,
-            password: _this.state.password,
-            connection: _this.state.connection,
-            sys_name: _this.state.list_name[sysNum],
-            sys_id: _this.state.list_id[sysNum]
-          });
+          if (_this.state.list_stt[sysNum] == 'online') {
+            _this.props.navigation.navigate('Sys', {
+              user: _this.state.user,
+              password: _this.state.password,
+              connection: _this.state.connection,
+              sys_name: _this.state.list_name[sysNum],
+              sys_id: _this.state.list_id[sysNum]
+            });
+          }
         } else {
           _this.props.navigation.navigate('AddSys', {
             user: _this.state.user,
@@ -70010,7 +70017,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 132
+              lineNumber: 134
             }
           },
           _react2.default.createElement(
@@ -70022,7 +70029,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 134
+                lineNumber: 136
               }
             },
             _react2.default.createElement(
@@ -70030,7 +70037,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 138
+                  lineNumber: 140
                 }
               },
               " Name: ",
@@ -70054,7 +70061,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 140
+                lineNumber: 142
               }
             },
             _react2.default.createElement(
@@ -70062,7 +70069,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 144
+                  lineNumber: 146
                 }
               },
               " Name: ",
@@ -70086,7 +70093,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 146
+                lineNumber: 148
               }
             },
             _react2.default.createElement(
@@ -70094,7 +70101,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 150
+                  lineNumber: 152
                 }
               },
               " Name: ",
@@ -70118,7 +70125,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 152
+                lineNumber: 154
               }
             },
             _react2.default.createElement(
@@ -70126,7 +70133,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 156
+                  lineNumber: 158
                 }
               },
               " Name: ",
@@ -70150,7 +70157,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.sysbox,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 158
+                lineNumber: 160
               }
             },
             _react2.default.createElement(
@@ -70158,7 +70165,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 162
+                  lineNumber: 164
                 }
               },
               " Name: ",
@@ -70295,7 +70302,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         var _this2 = this;
 
         config = {
-          address: "cretatech.com",
+          address: "cretag.kbvision.tv",
           port: 55555,
           reconnect: true,
           reconnectDelay: 500,
@@ -70506,6 +70513,8 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       var _this = babelHelpers.possibleConstructorReturn(this, (Sys.__proto__ || Object.getPrototypeOf(Sys)).call(this));
 
       _this.buttonRule = function (sys_name) {
+        clearInterval(_this.sysInterval);
+
         _this.props.navigation.navigate('Rule', {
           user: _this.state.user,
           password: _this.state.password,
@@ -70550,21 +70559,26 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function componentDidMount() {
         var _this2 = this;
 
-        frame["USER"] = this.state.user;
-        frame["PASS"] = this.state.password;
-        frame["FUNC"] = "READ";
-        frame["DATA"] = this.state.sys_id;
-
-        _reactNativeSockets2.default.write(JSON.stringify(frame));
-
-        this.sysInterval = setInterval(function () {
+        _reactNative.DeviceEventEmitter.addListener('startDevList', function () {
           frame["USER"] = _this2.state.user;
           frame["PASS"] = _this2.state.password;
           frame["FUNC"] = "READ";
           frame["DATA"] = _this2.state.sys_id;
 
           _reactNativeSockets2.default.write(JSON.stringify(frame));
-        }, 5000);
+
+          _this2.sysInterval = setInterval(function () {
+            frame["USER"] = _this2.state.user;
+            frame["PASS"] = _this2.state.password;
+            frame["FUNC"] = "READ";
+            frame["DATA"] = _this2.state.sys_id;
+
+            _reactNativeSockets2.default.write(JSON.stringify(frame));
+          }, 1000);
+        });
+
+        _reactNative.DeviceEventEmitter.emit('startDevList');
+
         this.sysListener = _reactNative.DeviceEventEmitter.addListener('socketClient_data', function (payload) {
           _this2.setState({
             msg: payload.data.replace(/'/g, '"')
@@ -70617,6 +70631,13 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   dev_format_temp["num"] = data[k]["ID"].toString();
                   dev_format_temp["hardware"] = data[k]["HARDWARE"].toString();
                   dev_format_temp["data"] = data[k]["VALUE"].toString();
+
+                  if (dev_format_temp["hardware"] == "1") {
+                    dev_format_temp["name"] = "RELAY " + dev_format_temp["num"];
+                  } else if (dev_format_temp["hardware"] == "5") {
+                    dev_format_temp["name"] = "LIGHT " + dev_format_temp["num"];
+                  }
+
                   var clone = babelHelpers.extends({}, dev_format_temp);
                   dev_list_t.push(clone);
                 }
@@ -70660,7 +70681,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 149
+              lineNumber: 159
             }
           },
           _react2.default.createElement(
@@ -70669,7 +70690,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.welcome,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 150
+                lineNumber: 160
               }
             },
             "System ",
@@ -70688,7 +70709,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.sysbox,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 154
+                    lineNumber: 164
                   }
                 },
                 _react2.default.createElement(
@@ -70696,14 +70717,14 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 157
+                      lineNumber: 167
                     }
                   },
                   "Addr: ",
                   item.num,
                   "\n",
-                  "Hardware: ",
-                  item.hardware,
+                  "Name: ",
+                  item.name,
                   "\n",
                   "Data: ",
                   item.hardware == "1" ? item.data == "100" ? "ON" : "OFF" : item.data
@@ -70715,7 +70736,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 151
+              lineNumber: 161
             }
           }),
           _react2.default.createElement(_reactNative.Button, {
@@ -70724,7 +70745,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             color: "#0040ff",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 162
+              lineNumber: 172
             }
           })
         );
@@ -70798,9 +70819,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
   var _react2 = babelHelpers.interopRequireDefault(_react);
 
-  var _reactNative = _require(_dependencyMap[1], "react-native");
+  var _reactNavigation = _require(_dependencyMap[1], "react-navigation");
 
-  var _reactNativeSockets = _require(_dependencyMap[2], "react-native-sockets");
+  var _reactNative = _require(_dependencyMap[2], "react-native");
+
+  var _reactNativeSockets = _require(_dependencyMap[3], "react-native-sockets");
 
   var _reactNativeSockets2 = babelHelpers.interopRequireDefault(_reactNativeSockets);
 
@@ -70831,6 +70854,29 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
       var _this = babelHelpers.possibleConstructorReturn(this, (Rule.__proto__ || Object.getPrototypeOf(Rule)).call(this));
 
+      _this.buttonAddRule = function () {
+        _this.props.navigation.navigate('AddRule', {
+          user: _this.state.user,
+          password: _this.state.password,
+          connection: _this.state.connection,
+          sys_name: _this.state.sys_name,
+          sys_id: _this.state.sys_id,
+          dev_list: _this.state.dev_list
+        });
+      };
+
+      _this.delRule = function (id) {
+        mqtt_frame['ADDR'] = _this.state.sys_id;
+        mqtt_frame['FUNC'] = "DELRULE";
+        mqtt_frame['DATA']['4'] = id;
+        frame["USER"] = _this.state.user;
+        frame["PASS"] = _this.state.password;
+        frame["FUNC"] = "WRITE";
+        frame["DATA"] = mqtt_frame;
+
+        _reactNativeSockets2.default.write(JSON.stringify(frame));
+      };
+
       _this.state = {
         user: "",
         password: "",
@@ -70840,6 +70886,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         rule_list: [],
         dev_list: []
       };
+      _this.delRule = _this.delRule.bind(_this);
       return _this;
     }
 
@@ -70867,15 +70914,22 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function componentDidMount() {
         var _this2 = this;
 
-        this.sysInterval = setInterval(function () {
+        frame["USER"] = this.state.user;
+        frame["PASS"] = this.state.password;
+        frame["FUNC"] = "RULE";
+        frame["DATA"] = this.state.sys_id;
+
+        _reactNativeSockets2.default.write(JSON.stringify(frame));
+
+        this.ruleInterval = setInterval(function () {
           frame["USER"] = _this2.state.user;
           frame["PASS"] = _this2.state.password;
           frame["FUNC"] = "RULE";
           frame["DATA"] = _this2.state.sys_id;
 
           _reactNativeSockets2.default.write(JSON.stringify(frame));
-        }, 1000);
-        this.sysListener = _reactNative.DeviceEventEmitter.addListener('socketClient_data', function (payload) {
+        }, 10000);
+        this.ruleListener = _reactNative.DeviceEventEmitter.addListener('socketClient_data', function (payload) {
           _this2.setState({
             msg: payload.data.replace(/'/g, '"')
           });
@@ -70924,14 +70978,23 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         });
       }
     }, {
+      key: "componentWillUnmount",
+      value: function componentWillUnmount() {
+        clearInterval(this.ruleInterval);
+        this.ruleListener.remove();
+      }
+    }, {
       key: "render",
       value: function render() {
+        var _this3 = this;
+
         return _react2.default.createElement(
           _reactNative.View,
           {
+            style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 85
+              lineNumber: 122
             }
           },
           _react2.default.createElement(
@@ -70940,7 +71003,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.welcome,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 86
+                lineNumber: 123
               }
             },
             "Rule ",
@@ -70953,11 +71016,13 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               return _react2.default.createElement(
                 _reactNative.TouchableOpacity,
                 {
-                  onPress: function onPress() {},
+                  onPress: function onPress() {
+                    return _this3.delRule(item.id);
+                  },
                   style: styles.sysbox,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 90
+                    lineNumber: 127
                   }
                 },
                 _react2.default.createElement(
@@ -70965,7 +71030,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 93
+                      lineNumber: 130
                     }
                   },
                   "ID: ",
@@ -70990,7 +71055,16 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 87
+              lineNumber: 124
+            }
+          }),
+          _react2.default.createElement(_reactNative.Button, {
+            onPress: this.buttonAddRule,
+            title: "Add rule",
+            color: "#0040ff",
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 135
             }
           })
         );
@@ -70999,9 +71073,24 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     return Rule;
   }(_react.Component);
 
-  Rule.navigationOptions = {
-    title: 'Rule'
+  Rule.navigationOptions = function (_ref2) {
+    var navigation = _ref2.navigation;
+    return {
+      title: 'Rule',
+      headerLeft: _react2.default.createElement(_reactNavigation.HeaderBackButton, {
+        onPress: function onPress() {
+          _reactNative.DeviceEventEmitter.emit('startDevList');
+
+          navigation.goBack();
+        },
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 22
+        }
+      })
+    };
   };
+
   exports.default = Rule;
 
   var styles = _reactNative.StyleSheet.create({
@@ -71038,7 +71127,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       padding: 10
     }
   });
-},445,[118,12,442],"screens/Rule.js");
+},445,[118,338,12,442],"screens/Rule.js");
 __d(function (global, _require, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -71203,5 +71292,338 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     }
   });
 },446,[118,12,442],"screens/AddSys.js");
+__d(function (global, _require, module, exports, _dependencyMap) {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  var _jsxFileName = "/home/hgn/Workspace/NSystemV2/screens/AddRule.js";
+
+  var _react = _require(_dependencyMap[0], "react");
+
+  var _react2 = babelHelpers.interopRequireDefault(_react);
+
+  var _reactNative = _require(_dependencyMap[1], "react-native");
+
+  var _reactNativeSockets = _require(_dependencyMap[2], "react-native-sockets");
+
+  var _reactNativeSockets2 = babelHelpers.interopRequireDefault(_reactNativeSockets);
+
+  var frame = {
+    "USER": "",
+    "PASS": "",
+    "FUNC": "SIGNIN",
+    "DATA": ""
+  };
+  var mqtt_frame = {
+    "ADDR": "000000008a8c7394",
+    "FUNC": "WRITE",
+    "DEV1": "01",
+    "DEV2": "FF",
+    "DATA": {
+      "1": "FF",
+      "2": "FF",
+      "3": "FF",
+      "4": "FF"
+    }
+  };
+
+  var AddRule = function (_Component) {
+    babelHelpers.inherits(AddRule, _Component);
+
+    function AddRule() {
+      babelHelpers.classCallCheck(this, AddRule);
+
+      var _this = babelHelpers.possibleConstructorReturn(this, (AddRule.__proto__ || Object.getPrototypeOf(AddRule)).call(this));
+
+      _this.state = {
+        user: "",
+        password: "",
+        connection: "Connected",
+        sys_name: "",
+        sys_id: "",
+        rule_list: [],
+        dev_list: [],
+        dev1_picker: [],
+        dev2_picker: [],
+        dev1_rule: 0,
+        dev2_rule: 0,
+        value_rule: 0,
+        under_rule: 0,
+        over_rule: 100
+      };
+      _this.buttonAddRule = _this.buttonAddRule.bind(_this);
+      return _this;
+    }
+
+    babelHelpers.createClass(AddRule, [{
+      key: "componentWillMount",
+      value: function componentWillMount() {
+        this.setState({
+          user: this.props.navigation.getParam('user', 'admin')
+        });
+        this.setState({
+          password: this.props.navigation.getParam('password', 'admin')
+        });
+        this.setState({
+          dev_list: this.props.navigation.getParam('dev_list', [])
+        });
+        this.setState({
+          sys_id: this.props.navigation.getParam('sys_id', "0")
+        });
+      }
+    }, {
+      key: "componentDidMount",
+      value: function componentDidMount() {
+        var key = void 0;
+        var dev1 = [];
+        var dev2 = [];
+        dev2.push({
+          "name": "TIME",
+          "addr": 0
+        });
+
+        for (key in this.state.dev_list) {
+          if (this.state.dev_list[key]['hardware'] == 1) {
+            var temp1 = {};
+            temp1['name'] = this.state.dev_list[key]['name'];
+            temp1['addr'] = this.state.dev_list[key]['num'];
+            dev1.push(temp1);
+          }
+
+          var temp2 = {};
+          temp2['name'] = this.state.dev_list[key]['name'];
+          temp2['addr'] = this.state.dev_list[key]['num'];
+          dev2.push(temp2);
+        }
+
+        this.setState({
+          dev1_picker: dev1
+        });
+        this.setState({
+          dev2_picker: dev2
+        });
+        this.setState({
+          dev1_rule: dev1[0]['addr']
+        });
+        this.setState({
+          dev2_rule: dev2[0]['addr']
+        });
+      }
+    }, {
+      key: "buttonAddRule",
+      value: function buttonAddRule() {
+        frame["USER"] = this.state.user;
+        frame["PASS"] = this.state.password;
+        frame["FUNC"] = "WRITE";
+        mqtt_frame['ADDR'] = this.state.sys_id;
+        mqtt_frame['FUNC'] = "RULE";
+        mqtt_frame['DEV1'] = this.state.dev1_rule;
+        mqtt_frame['DEV2'] = this.state.dev2_rule;
+        mqtt_frame['DATA']['1'] = this.state.value_rule.toString();
+        mqtt_frame['DATA']['2'] = this.state.under_rule.toString();
+        mqtt_frame['DATA']['3'] = this.state.over_rule.toString();
+        mqtt_frame['DATA']['4'] = "1";
+        frame["DATA"] = mqtt_frame;
+
+        _reactNativeSockets2.default.write(JSON.stringify(frame));
+
+        this.props.navigation.goBack();
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this2 = this;
+
+        return _react2.default.createElement(
+          _reactNative.View,
+          {
+            style: styles.container,
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 90
+            }
+          },
+          _react2.default.createElement(
+            _reactNative.Picker,
+            {
+              selectedValue: this.state.dev1_rule,
+              style: {
+                height: 50,
+                width: 200
+              },
+              onValueChange: function onValueChange(itemValue, itemIndex) {
+                return _this2.setState({
+                  dev1_rule: itemValue
+                });
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 91
+              }
+            },
+            this.state.dev1_picker.map(function (item, key) {
+              return _react2.default.createElement(_reactNative.Picker.Item, {
+                label: item.name,
+                value: item.addr,
+                key: key,
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 96
+                }
+              });
+            })
+          ),
+          _react2.default.createElement(
+            _reactNative.Picker,
+            {
+              selectedValue: this.state.dev2_rule,
+              style: {
+                height: 50,
+                width: 200
+              },
+              onValueChange: function onValueChange(itemValue, itemIndex) {
+                return _this2.setState({
+                  dev2_rule: itemValue
+                });
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 99
+              }
+            },
+            this.state.dev2_picker.map(function (item, key) {
+              return _react2.default.createElement(_reactNative.Picker.Item, {
+                label: item.name,
+                value: item.addr,
+                key: key,
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 104
+                }
+              });
+            })
+          ),
+          _react2.default.createElement(
+            _reactNative.Picker,
+            {
+              selectedValue: this.state.value_rule,
+              style: {
+                height: 50,
+                width: 200
+              },
+              onValueChange: function onValueChange(itemValue, itemIndex) {
+                return _this2.setState({
+                  value_rule: itemValue
+                });
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 107
+              }
+            },
+            _react2.default.createElement(_reactNative.Picker.Item, {
+              label: "ON",
+              value: 100,
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 111
+              }
+            }),
+            _react2.default.createElement(_reactNative.Picker.Item, {
+              label: "OFF",
+              value: 0,
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 112
+              }
+            })
+          ),
+          _react2.default.createElement(_reactNative.TextInput, {
+            style: {
+              height: 50,
+              width: 200
+            },
+            onChangeText: function onChangeText(text) {
+              return _this2.setState({
+                under_rule: isNaN(parseInt(text)) ? 0 : parseInt(text)
+              });
+            },
+            value: this.state.under_rule.toString(),
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 114
+            }
+          }),
+          _react2.default.createElement(_reactNative.TextInput, {
+            style: {
+              height: 50,
+              width: 200
+            },
+            onChangeText: function onChangeText(text) {
+              return _this2.setState({
+                over_rule: isNaN(parseInt(text)) ? 0 : parseInt(text)
+              });
+            },
+            value: this.state.over_rule.toString(),
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 119
+            }
+          }),
+          _react2.default.createElement(_reactNative.Button, {
+            onPress: this.buttonAddRule,
+            title: "Add Rule",
+            color: "#0040ff",
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 124
+            }
+          })
+        );
+      }
+    }]);
+    return AddRule;
+  }(_react.Component);
+
+  AddRule.navigationOptions = {
+    title: 'Add rule'
+  };
+  exports.default = AddRule;
+
+  var styles = _reactNative.StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5FCFF'
+    },
+    welcome: {
+      fontSize: 20,
+      textAlign: 'center',
+      margin: 10
+    },
+    instructions: {
+      textAlign: 'center',
+      color: '#333333',
+      marginBottom: 5
+    },
+    textbox: {
+      height: 40,
+      width: 200,
+      borderColor: "gray",
+      borderWidth: 1
+    },
+    sysbox: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      margin: 10,
+      borderColor: "gray",
+      borderWidth: 1,
+      width: 300,
+      padding: 10
+    }
+  });
+},447,[118,12,442],"screens/AddRule.js");
 require(44);
 require(11);

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {HeaderBackButton} from 'react-navigation'
 import {
   Platform,
   StyleSheet,
@@ -16,9 +17,15 @@ var frame = {"USER":"","PASS":"","FUNC":"SIGNIN","DATA":""}
 var mqtt_frame = {"ADDR":"000000008a8c7394", "FUNC":"WRITE","DEV1":"01","DEV2":"FF","DATA":{"1":"FF","2":"FF","3":"FF","4":"FF"}}
 
 export default class Rule extends Component {
-    static navigationOptions = {
+    static navigationOptions = ({navigation}) => ({
         title: 'Rule',
-    };
+        headerLeft:  <HeaderBackButton
+        onPress={() => {
+          DeviceEventEmitter.emit('startDevList')
+          navigation.goBack()
+        }}
+        />
+    });
     constructor() {
         super()
         this.state = {
@@ -30,6 +37,7 @@ export default class Rule extends Component {
           rule_list:[],
           dev_list:[]
         }
+        this.delRule = this.delRule.bind(this)
     }
     componentWillMount() {
       this.setState({user:this.props.navigation.getParam('user','admin')})
@@ -39,18 +47,21 @@ export default class Rule extends Component {
       this.setState({dev_list:this.props.navigation.getParam('dev_list',[])})
     }
     componentDidMount() {
-      frame["USER"] = this.state.user
-      frame["PASS"] = this.state.password
-      frame["FUNC"] = "RULE"
-      frame["DATA"] = this.state.sys_id
-      Sockets.write(JSON.stringify(frame));
-      this.ruleInterval = setInterval( () => {
+      DeviceEventEmitter.addListener('startRuleList', () => {
         frame["USER"] = this.state.user
         frame["PASS"] = this.state.password
         frame["FUNC"] = "RULE"
         frame["DATA"] = this.state.sys_id
         Sockets.write(JSON.stringify(frame));
-      }, 10000)
+        this.ruleInterval = setInterval( () => {
+          frame["USER"] = this.state.user
+          frame["PASS"] = this.state.password
+          frame["FUNC"] = "RULE"
+          frame["DATA"] = this.state.sys_id
+          Sockets.write(JSON.stringify(frame));
+        }, 2000)
+      })
+      DeviceEventEmitter.emit('startRuleList')
       this.ruleListener = DeviceEventEmitter.addListener('socketClient_data', (payload) => {
         this.setState({msg:payload.data.replace(/'/g,'"')})
         let cmd
@@ -89,20 +100,47 @@ export default class Rule extends Component {
       clearInterval(this.ruleInterval)
       this.ruleListener.remove()
     }
+    buttonAddRule = () => {
+      clearInterval(this.ruleInterval)
+      this.props.navigation.navigate('AddRule', {
+        user: this.state.user,
+        password: this.state.password,
+        connection: this.state.connection,
+        sys_name: this.state.sys_name,
+        sys_id: this.state.sys_id,
+        dev_list: this.state.dev_list,
+        rule_list:this.state.rule_list
+      })
+    }
+    delRule = (id) => {
+      mqtt_frame['ADDR'] = this.state.sys_id
+      mqtt_frame['FUNC'] = "DELRULE"
+      mqtt_frame['DATA']['4'] = id
+      frame["USER"] = this.state.user
+      frame["PASS"] = this.state.password
+      frame["FUNC"] = "WRITE"
+      frame["DATA"] = mqtt_frame
+      Sockets.write(JSON.stringify(frame));
+    }
     render() {
         return(
-            <View>
+            <View style={styles.container}>
               <Text style={styles.welcome}>Rule {this.state.sys_name}</Text>
               <FlatList
               data={this.state.rule_list}
               renderItem={({item}) => (
                 <TouchableOpacity
-                  onPress={()=>{}} 
+                  onPress={()=>this.delRule(item.id)} 
                   style={styles.sysbox}>
-                <Text>ID: {item.id}{"\n"}Dev1: {item.dev1}   Dev2: {item.dev2}  Data: {item.value}{"\n"}Under: {item.under} Over: {item.over}</Text>
+                <Text>ID: {item.id}{"\n"}Dev1: {item.dev1} => Data: {item.value}{"\n"}Dev2: {item.dev2} {"\n"}Lower threshold: {item.under}{"\n"}Upper threshold: {item.over}</Text>
                 </TouchableOpacity>
               )}
               keyExtractor={(item, index) => index.toString()}
+            />
+            <Button
+              onPress={this.buttonAddRule}
+              title="Add rule"
+              color="#0040ff"
             />
             </View>
         )

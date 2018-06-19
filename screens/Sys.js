@@ -46,18 +46,21 @@ export default class Sys extends Component {
     this.setState({sys_id:this.props.navigation.getParam('sys_id','None')})
   }
   componentDidMount() {
-    frame["USER"] = this.state.user
-    frame["PASS"] = this.state.password
-    frame["FUNC"] = "READ"
-    frame["DATA"] = this.state.sys_id
-    Sockets.write(JSON.stringify(frame));
-    this.sysInterval = setInterval( () => {
+    DeviceEventEmitter.addListener('startDevList', () => {
       frame["USER"] = this.state.user
       frame["PASS"] = this.state.password
       frame["FUNC"] = "READ"
       frame["DATA"] = this.state.sys_id
       Sockets.write(JSON.stringify(frame));
-    }, 5000)
+      this.sysInterval = setInterval( () => {
+        frame["USER"] = this.state.user
+        frame["PASS"] = this.state.password
+        frame["FUNC"] = "READ"
+        frame["DATA"] = this.state.sys_id
+        Sockets.write(JSON.stringify(frame));
+      }, 2000)
+    })
+    DeviceEventEmitter.emit('startDevList')
     this.sysListener = DeviceEventEmitter.addListener('socketClient_data', (payload) => {
       this.setState({msg:payload.data.replace(/'/g,'"')})
       let cmd
@@ -141,6 +144,7 @@ export default class Sys extends Component {
     Sockets.write(JSON.stringify(frame));
   }
   buttonRule = (sys_name) => {
+    clearInterval(this.sysInterval)
     this.props.navigation.navigate('Rule', {
       user: this.state.user,
       password: this.state.password,
