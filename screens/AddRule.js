@@ -18,7 +18,7 @@ var frame = {"USER":"","PASS":"","FUNC":"SIGNIN","DATA":""}
 var mqtt_frame = {"ADDR":"000000008a8c7394", "FUNC":"WRITE","DEV1":"01","DEV2":"FF","DATA":{"1":"FF","2":"FF","3":"FF","4":"FF"}}
 
 export default class AddRule extends Component {
-    static navigationOptions = {
+    static navigationOptions = ({navigation}) => ({
         title: 'Add rule',
         headerLeft:  <HeaderBackButton
         onPress={() => {
@@ -26,7 +26,7 @@ export default class AddRule extends Component {
           navigation.goBack()
         }}
         />
-    };
+    });
     constructor() {
         super()
         this.state = {
@@ -43,7 +43,7 @@ export default class AddRule extends Component {
             dev2_rule : 0,
             value_rule: 0,
             under_rule: 0,
-            over_rule: 100
+            over_rule: 0
         }
         this.buttonAddRule = this.buttonAddRule.bind(this)
     }
@@ -95,6 +95,7 @@ export default class AddRule extends Component {
           rule_id++
         }
       }
+      //alert(rule_id)
       mqtt_frame['DATA']['4'] = rule_id.toString()
       frame["DATA"] = mqtt_frame;
       Sockets.write(JSON.stringify(frame))

@@ -70403,6 +70403,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
           }),
           _react2.default.createElement(_reactNative.TextInput, {
             style: styles.textbox,
+            secureTextEntry: true,
             onChangeText: function onChangeText(text) {
               return _this3.setState({
                 password: text
@@ -70421,7 +70422,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             accessibilityLabel: "Learn more about this purple button",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 106
+              lineNumber: 107
             }
           })
         );
@@ -70574,7 +70575,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             frame["DATA"] = _this2.state.sys_id;
 
             _reactNativeSockets2.default.write(JSON.stringify(frame));
-          }, 1000);
+          }, 2500);
         });
 
         _reactNative.DeviceEventEmitter.emit('startDevList');
@@ -70659,6 +70660,8 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     }, {
       key: "deviceControl",
       value: function deviceControl(dev_id, dev_value) {
+        var _this3 = this;
+
         mqtt_frame['ADDR'] = this.state.sys_id;
         mqtt_frame['FUNC'] = "WRITE";
         mqtt_frame['DEV1'] = dev_id;
@@ -70669,11 +70672,20 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         frame["DATA"] = mqtt_frame;
 
         _reactNativeSockets2.default.write(JSON.stringify(frame));
+
+        setTimeout(function () {
+          frame["USER"] = _this3.state.user;
+          frame["PASS"] = _this3.state.password;
+          frame["FUNC"] = "READ";
+          frame["DATA"] = _this3.state.sys_id;
+
+          _reactNativeSockets2.default.write(JSON.stringify(frame));
+        }, 200);
       }
     }, {
       key: "render",
       value: function render() {
-        var _this3 = this;
+        var _this4 = this;
 
         return _react2.default.createElement(
           _reactNative.View,
@@ -70681,7 +70693,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 159
+              lineNumber: 166
             }
           },
           _react2.default.createElement(
@@ -70690,7 +70702,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.welcome,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 160
+                lineNumber: 167
               }
             },
             "System ",
@@ -70704,12 +70716,12 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 _reactNative.TouchableOpacity,
                 {
                   onPress: function onPress() {
-                    return _this3.deviceControl(item.num, item.data);
+                    return _this4.deviceControl(item.num, item.data);
                   },
                   style: styles.sysbox,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 164
+                    lineNumber: 171
                   }
                 },
                 _react2.default.createElement(
@@ -70717,7 +70729,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 167
+                      lineNumber: 174
                     }
                   },
                   "Addr: ",
@@ -70736,7 +70748,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 161
+              lineNumber: 168
             }
           }),
           _react2.default.createElement(_reactNative.Button, {
@@ -70745,7 +70757,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             color: "#0040ff",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 172
+              lineNumber: 179
             }
           })
         );
@@ -70855,13 +70867,16 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       var _this = babelHelpers.possibleConstructorReturn(this, (Rule.__proto__ || Object.getPrototypeOf(Rule)).call(this));
 
       _this.buttonAddRule = function () {
+        clearInterval(_this.ruleInterval);
+
         _this.props.navigation.navigate('AddRule', {
           user: _this.state.user,
           password: _this.state.password,
           connection: _this.state.connection,
           sys_name: _this.state.sys_name,
           sys_id: _this.state.sys_id,
-          dev_list: _this.state.dev_list
+          dev_list: _this.state.dev_list,
+          rule_list: _this.state.rule_list
         });
       };
 
@@ -70914,21 +70929,26 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function componentDidMount() {
         var _this2 = this;
 
-        frame["USER"] = this.state.user;
-        frame["PASS"] = this.state.password;
-        frame["FUNC"] = "RULE";
-        frame["DATA"] = this.state.sys_id;
-
-        _reactNativeSockets2.default.write(JSON.stringify(frame));
-
-        this.ruleInterval = setInterval(function () {
+        _reactNative.DeviceEventEmitter.addListener('startRuleList', function () {
           frame["USER"] = _this2.state.user;
           frame["PASS"] = _this2.state.password;
           frame["FUNC"] = "RULE";
           frame["DATA"] = _this2.state.sys_id;
 
           _reactNativeSockets2.default.write(JSON.stringify(frame));
-        }, 10000);
+
+          _this2.ruleInterval = setInterval(function () {
+            frame["USER"] = _this2.state.user;
+            frame["PASS"] = _this2.state.password;
+            frame["FUNC"] = "RULE";
+            frame["DATA"] = _this2.state.sys_id;
+
+            _reactNativeSockets2.default.write(JSON.stringify(frame));
+          }, 2000);
+        });
+
+        _reactNative.DeviceEventEmitter.emit('startRuleList');
+
         this.ruleListener = _reactNative.DeviceEventEmitter.addListener('socketClient_data', function (payload) {
           _this2.setState({
             msg: payload.data.replace(/'/g, '"')
@@ -70994,7 +71014,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 122
+              lineNumber: 127
             }
           },
           _react2.default.createElement(
@@ -71003,7 +71023,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.welcome,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 123
+                lineNumber: 128
               }
             },
             "Rule ",
@@ -71022,7 +71042,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.sysbox,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 127
+                    lineNumber: 132
                   }
                 },
                 _react2.default.createElement(
@@ -71030,7 +71050,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 130
+                      lineNumber: 135
                     }
                   },
                   "ID: ",
@@ -71038,14 +71058,17 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   "\n",
                   "Dev1: ",
                   item.dev1,
-                  "   Dev2: ",
-                  item.dev2,
-                  "  Data: ",
+                  " => Data: ",
                   item.value,
                   "\n",
-                  "Under: ",
+                  "Dev2: ",
+                  item.dev2,
+                  " ",
+                  "\n",
+                  "Lower threshold: ",
                   item.under,
-                  " Over: ",
+                  "\n",
+                  "Upper threshold: ",
                   item.over
                 )
               );
@@ -71055,7 +71078,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 124
+              lineNumber: 129
             }
           }),
           _react2.default.createElement(_reactNative.Button, {
@@ -71064,7 +71087,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             color: "#0040ff",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 135
+              lineNumber: 140
             }
           })
         );
@@ -71302,9 +71325,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
   var _react2 = babelHelpers.interopRequireDefault(_react);
 
-  var _reactNative = _require(_dependencyMap[1], "react-native");
+  var _reactNavigation = _require(_dependencyMap[1], "react-navigation");
 
-  var _reactNativeSockets = _require(_dependencyMap[2], "react-native-sockets");
+  var _reactNative = _require(_dependencyMap[2], "react-native");
+
+  var _reactNativeSockets = _require(_dependencyMap[3], "react-native-sockets");
 
   var _reactNativeSockets2 = babelHelpers.interopRequireDefault(_reactNativeSockets);
 
@@ -71349,7 +71374,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         dev2_rule: 0,
         value_rule: 0,
         under_rule: 0,
-        over_rule: 100
+        over_rule: 0
       };
       _this.buttonAddRule = _this.buttonAddRule.bind(_this);
       return _this;
@@ -71369,6 +71394,9 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         });
         this.setState({
           sys_id: this.props.navigation.getParam('sys_id', "0")
+        });
+        this.setState({
+          rule_list: this.props.navigation.getParam('rule_list', [])
         });
       }
     }, {
@@ -71422,10 +71450,20 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         mqtt_frame['DATA']['1'] = this.state.value_rule.toString();
         mqtt_frame['DATA']['2'] = this.state.under_rule.toString();
         mqtt_frame['DATA']['3'] = this.state.over_rule.toString();
-        mqtt_frame['DATA']['4'] = "1";
+        var rule_id = 1;
+
+        for (var i = 0; i < this.state.rule_list.length; i++) {
+          if (this.state.rule_list[i]['id'] == rule_id) {
+            rule_id++;
+          }
+        }
+
+        mqtt_frame['DATA']['4'] = rule_id.toString();
         frame["DATA"] = mqtt_frame;
 
         _reactNativeSockets2.default.write(JSON.stringify(frame));
+
+        _reactNative.DeviceEventEmitter.emit('startRuleList');
 
         this.props.navigation.goBack();
       }
@@ -71440,7 +71478,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 90
+              lineNumber: 107
             }
           },
           _react2.default.createElement(
@@ -71458,7 +71496,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               },
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 91
+                lineNumber: 108
               }
             },
             this.state.dev1_picker.map(function (item, key) {
@@ -71468,7 +71506,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 key: key,
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 96
+                  lineNumber: 113
                 }
               });
             })
@@ -71488,7 +71526,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               },
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 99
+                lineNumber: 116
               }
             },
             this.state.dev2_picker.map(function (item, key) {
@@ -71498,7 +71536,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 key: key,
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 104
+                  lineNumber: 121
                 }
               });
             })
@@ -71518,7 +71556,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               },
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 107
+                lineNumber: 124
               }
             },
             _react2.default.createElement(_reactNative.Picker.Item, {
@@ -71526,7 +71564,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               value: 100,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 111
+                lineNumber: 128
               }
             }),
             _react2.default.createElement(_reactNative.Picker.Item, {
@@ -71534,7 +71572,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               value: 0,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 112
+                lineNumber: 129
               }
             })
           ),
@@ -71543,6 +71581,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               height: 50,
               width: 200
             },
+            keyboardType: "numeric",
             onChangeText: function onChangeText(text) {
               return _this2.setState({
                 under_rule: isNaN(parseInt(text)) ? 0 : parseInt(text)
@@ -71551,7 +71590,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             value: this.state.under_rule.toString(),
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 114
+              lineNumber: 131
             }
           }),
           _react2.default.createElement(_reactNative.TextInput, {
@@ -71559,6 +71598,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               height: 50,
               width: 200
             },
+            keyboardType: "numeric",
             onChangeText: function onChangeText(text) {
               return _this2.setState({
                 over_rule: isNaN(parseInt(text)) ? 0 : parseInt(text)
@@ -71567,7 +71607,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             value: this.state.over_rule.toString(),
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 119
+              lineNumber: 137
             }
           }),
           _react2.default.createElement(_reactNative.Button, {
@@ -71576,7 +71616,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             color: "#0040ff",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 124
+              lineNumber: 143
             }
           })
         );
@@ -71585,9 +71625,24 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     return AddRule;
   }(_react.Component);
 
-  AddRule.navigationOptions = {
-    title: 'Add rule'
+  AddRule.navigationOptions = function (_ref) {
+    var navigation = _ref.navigation;
+    return {
+      title: 'Add rule',
+      headerLeft: _react2.default.createElement(_reactNavigation.HeaderBackButton, {
+        onPress: function onPress() {
+          _reactNative.DeviceEventEmitter.emit('startRuleList');
+
+          navigation.goBack();
+        },
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 23
+        }
+      })
+    };
   };
+
   exports.default = AddRule;
 
   var styles = _reactNative.StyleSheet.create({
@@ -71624,6 +71679,6 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       padding: 10
     }
   });
-},447,[118,12,442],"screens/AddRule.js");
+},447,[118,338,12,442],"screens/AddRule.js");
 require(44);
 require(11);

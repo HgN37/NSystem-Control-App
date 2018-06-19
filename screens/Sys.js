@@ -58,7 +58,7 @@ export default class Sys extends Component {
         frame["FUNC"] = "READ"
         frame["DATA"] = this.state.sys_id
         Sockets.write(JSON.stringify(frame));
-      }, 2000)
+      }, 2500)
     })
     DeviceEventEmitter.emit('startDevList')
     this.sysListener = DeviceEventEmitter.addListener('socketClient_data', (payload) => {
@@ -142,6 +142,13 @@ export default class Sys extends Component {
     frame["FUNC"] = "WRITE"
     frame["DATA"] = mqtt_frame
     Sockets.write(JSON.stringify(frame));
+    setTimeout( () => {
+      frame["USER"] = this.state.user
+      frame["PASS"] = this.state.password
+      frame["FUNC"] = "READ"
+      frame["DATA"] = this.state.sys_id
+      Sockets.write(JSON.stringify(frame));
+    }, 200)
   }
   buttonRule = (sys_name) => {
     clearInterval(this.sysInterval)
